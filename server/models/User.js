@@ -1,35 +1,12 @@
 const mongoose = require('mongoose');
-
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  isPro: {
-    type: Boolean,
-    default: false
-  },
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true },
+  isPro: { type: Boolean, default: false },
   stripeCustomerId: String,
   stripeSubscriptionId: String,
-  invoiceCountThisMonth: {
-    type: Number,
-    default: 0
-  },
-  lastReset: {
-    type: Date,
-    default: Date.now
-  }
+  invoiceCountThisMonth: { type: Number, default: 0 },
+  lastReset: { type: Date, default: Date.now }
 }, { timestamps: true });
-
 module.exports = mongoose.model('User', userSchema);
