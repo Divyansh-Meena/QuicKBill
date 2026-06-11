@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
+import API_URL from '../config/api';
 
 const Pricing = () => {
   const { user, logout } = useAuth();
