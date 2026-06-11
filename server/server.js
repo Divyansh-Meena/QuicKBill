@@ -6,12 +6,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
+const app = express();
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://quickbill-nine.vercel.app',
-    'https://quickbill-cmb4.onrender.com'
-  ],
+  origin: '*',
   credentials: true
 }));
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
