@@ -1,3 +1,101 @@
+const Invoice = require('../models/Invoice');
+const Client = require('../models/Client');
+const User = require('../models/User');
+const generatePDF = require('../utils/generatePDF');
+
+const generateInvoiceNumber = async (userId) => {
+  const count = await Invoice.countDocuments({ userId });
+  return 'INV-' + String(count + 1).padStart(4, '0');
+};
+
+const getInvoices = async (req, res) => {
+  try {
+    const invoices = await Invoice.find({ userId: req.user.id })
+      .populate('clientId', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(invoices);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id)
+      .populate('clientId', 'name email address phone');
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+    if (invoice.userId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+    res.json(invoice);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const createInvoice = async (req, res) => {
+  try {
+    const { clientId, dueDate, items, taxRate, notes } = req.body;
+    if (!clientId || !dueDate || !items || items.length === 0) {
+      return res.status(400).json({ message: 'Client, due date, and items required' });
+    }
+    const client = await Client.findOne({ _id: clientId, userId: req.user.id });
+    if (!client) return res.status(404).json({ message: 'Client not found' });
+
+    const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
+    const taxAmount = (subtotal * (taxRate || 0)) / 100;
+    const total = subtotal + taxAmount;
+    const invoiceNumber = await generateInvoiceNumber(req.user.id);
+
+    const invoice = await Invoice.create({
+      userId: req.user.id, clientId, invoiceNumber, dueDate,
+      items: items.map(item => ({ ...item, amount: item.quantity * item.rate })),
+      subtotal, taxRate: taxRate || 0, taxAmount, total, notes
+    });
+
+    const user = await User.findById(req.user.id);
+    if (!user.isPro) {
+      user.invoiceCountThisMonth += 1;
+      await user.save();
+    }
+
+    await invoice.populate('clientId', 'name email');
+    res.status(201).json(invoice);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateStatus = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+    if (invoice.userId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+    invoice.status = req.body.status || invoice.status;
+    await invoice.save();
+    await invoice.populate('clientId', 'name email');
+    res.json(invoice);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+    if (invoice.userId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+    await invoice.deleteOne();
+    res.json({ message: 'Invoice deleted', id: req.params.id });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const downloadPDF = async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id).populate('clientId');
@@ -8,20 +106,70 @@ const downloadPDF = async (req, res) => {
 
     const user = await User.findById(req.user.id);
     const pdf = await generatePDF(invoice, invoice.clientId, user);
-    
-    // Check if it's actually a PDF or HTML fallback
-    const isPDF = pdf[0] === 0x25; // PDF starts with '%'
-    
-    if (isPDF) {
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoiceNumber}.pdf`);
-    } else {
-      res.setHeader('Content-Type', 'text/html');
-      res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoiceNumber}.html`);
-    }
-    
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoiceNumber}.pdf`);
     res.send(pdf);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+const sendInvoiceEmail = async (req, res) => {
+  try {
+    const nodemailer = require('nodemailer');
+    const invoice = await Invoice.findById(req.params.id).populate('clientId');
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+    if (invoice.userId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    const user = await User.findById(req.user.id);
+    const pdf = await generatePDF(invoice, invoice.clientId, user);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: `"QuickBill" <${process.env.EMAIL_USER}>`,
+      to: invoice.clientId.email,
+      subject: `Invoice ${invoice.invoiceNumber} from ${user.name}`,
+      html: `
+        <p>Hello ${invoice.clientId.name},</p>
+        <p>Please find your invoice <strong>${invoice.invoiceNumber}</strong> attached.</p>
+        <p>Total Amount: <strong>$${invoice.total.toFixed(2)}</strong></p>
+        <p>Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}</p>
+        <br>
+        <p>Best regards,<br>${user.name}</p>
+      `,
+      attachments: [{
+        filename: `invoice-${invoice.invoiceNumber}.pdf`,
+        content: pdf
+      }]
+    });
+
+    if (invoice.status === 'draft') {
+      invoice.status = 'sent';
+      await invoice.save();
+    }
+
+    res.json({ message: 'Invoice sent successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  getInvoices,
+  getInvoice,
+  createInvoice,
+  updateStatus,
+  deleteInvoice,
+  downloadPDF,
+  sendInvoiceEmail
 };
