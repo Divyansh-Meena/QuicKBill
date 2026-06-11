@@ -17,7 +17,7 @@ const Invoices = () => {
 
   const fetchInvoices = async () => {
     try {
-      const res = await axios.get('http://`${API_URL}`/api/invoices', {
+      const res = await axios.get(`${API_URL}/api/invoices`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       setInvoices(res.data);
@@ -30,7 +30,7 @@ const Invoices = () => {
   const updateStatus = async (id, status) => {
     try {
       const token = getToken();
-      await axios.put('http://`${API_URL}`/api/invoices/${id}/status', { status }, {
+      await axios.put(`${API_URL}/api/invoices/${id}/status`, { status }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchInvoices();
@@ -43,7 +43,7 @@ const Invoices = () => {
     if (!confirm('Are you sure?')) return;
     try {
       const token = getToken();
-      await axios.delete('http://`${API_URL}`/api/invoices/${id}', {
+      await axios.delete(`${API_URL}/api/invoices/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchInvoices();

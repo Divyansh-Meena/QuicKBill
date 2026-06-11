@@ -28,7 +28,7 @@ const CreateInvoice = () => {
     const token = getToken();
     console.log("🔑 Token:", token ? "Found" : "MISSING!");
     
-    const res = await axios.get('http://`${API_URL}`/api/clients', {
+    const res = await axios.get(`${API_URL}/api/clients`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -83,7 +83,7 @@ const CreateInvoice = () => {
     setLoading(true);
     try {
       const token = getToken();
-      await axios.post('http://`${API_URL}`/api/invoices', {
+      await axios.post(`${API_URL}/api/invoices`, {
         ...formData,
         items: formData.items.map(item => ({
           ...item,
