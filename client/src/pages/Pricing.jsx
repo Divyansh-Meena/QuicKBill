@@ -15,7 +15,7 @@ const Pricing = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/payments/create-checkout-session', {}, {
+      const res = await axios.post('http://`${API_URL}`/api/payments/create-checkout-session', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       window.location.href = res.data.url;
@@ -28,7 +28,7 @@ const Pricing = () => {
   const testUpgrade = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/payments/test-upgrade', {}, {
+      const res = await axios.post('http://`${API_URL}`/api/payments/test-upgrade', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert(res.data.message);

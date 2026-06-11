@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
+import API_URL from '../config/api';
 
 const Invoices = () => {
   const { user, logout } = useAuth();
@@ -16,7 +17,7 @@ const Invoices = () => {
 
   const fetchInvoices = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/invoices', {
+      const res = await axios.get('http://`${API_URL}`/api/invoices', {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       setInvoices(res.data);
@@ -29,7 +30,7 @@ const Invoices = () => {
   const updateStatus = async (id, status) => {
     try {
       const token = getToken();
-      await axios.put(`http://localhost:5000/api/invoices/${id}/status`, { status }, {
+      await axios.put('http://`${API_URL}`/api/invoices/${id}/status', { status }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchInvoices();
@@ -42,7 +43,7 @@ const Invoices = () => {
     if (!confirm('Are you sure?')) return;
     try {
       const token = getToken();
-      await axios.delete(`http://localhost:5000/api/invoices/${id}`, {
+      await axios.delete('http://`${API_URL}`/api/invoices/${id}', {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchInvoices();

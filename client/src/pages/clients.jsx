@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import API_URL from '../config/api';
 
 const Clients = () => {
   const { user, logout } = useAuth();
@@ -18,7 +19,8 @@ const Clients = () => {
 
   const fetchClients = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/clients', {
+      
+      const res = await axios.get(`${API_URL}/api/clients`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       setClients(res.data);
@@ -33,11 +35,13 @@ const Clients = () => {
     try {
       const token = getToken();
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/clients/${editingId}`, formData, {
+        
+        await axios.put(`${API_URL}/api/clients/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('http://localhost:5000/api/clients', formData, {
+        
+        await axios.post(`${API_URL}/api/clients`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -62,7 +66,8 @@ const Clients = () => {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this client?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/clients/${id}`, {
+      
+      await axios.delete(`${API_URL}/api/clients/${id}`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       fetchClients();

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
+import API_URL from '../config/api';
 
 const InvoiceDetail = () => {
   const { id } = useParams();
@@ -18,7 +19,7 @@ const InvoiceDetail = () => {
 
   const fetchInvoice = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/invoices/${id}`, {
+      const res = await axios.get('http://`${API_URL}`/api/invoices/${id}', {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       setInvoice(res.data);
@@ -31,7 +32,7 @@ const InvoiceDetail = () => {
 
   const downloadPDF = async () => {
   try {
-    const res = await axios.get(`http://localhost:5000/api/invoices/${id}/pdf`, {
+    const res = await axios.get('http://`${API_URL}`/api/invoices/${id}/pdf', {
       headers: { Authorization: `Bearer ${getToken()}` },
       responseType: 'blob'
     });
@@ -49,7 +50,7 @@ const InvoiceDetail = () => {
 };
   const sendEmail = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/invoices/${id}/send`, {}, {
+      await axios.post('http://`${API_URL}`/api/invoices/${id}/send', {}, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       alert('Invoice sent successfully!');

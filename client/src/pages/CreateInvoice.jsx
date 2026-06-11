@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
+import API_URL from '../config/api';
 
 const CreateInvoice = () => {
   const { user, logout } = useAuth();
@@ -27,7 +28,7 @@ const CreateInvoice = () => {
     const token = getToken();
     console.log("🔑 Token:", token ? "Found" : "MISSING!");
     
-    const res = await axios.get('http://localhost:5000/api/clients', {
+    const res = await axios.get('http://`${API_URL}`/api/clients', {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -82,7 +83,7 @@ const CreateInvoice = () => {
     setLoading(true);
     try {
       const token = getToken();
-      await axios.post('http://localhost:5000/api/invoices', {
+      await axios.post('http://`${API_URL}`/api/invoices', {
         ...formData,
         items: formData.items.map(item => ({
           ...item,
