@@ -2,13 +2,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import useAuth from './hooks/useAuth';
 import Login from './pages/login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
-import Invoices from './pages/Invoices';
+import Register from './pages/register';
+import Dashboard from './pages/dashboard';
+import Clients from './pages/clients';
+import Invoices from './pages/invoices';
 import CreateInvoice from './pages/CreateInvoice';
-import InvoiceDetail from './pages/InvoiceDetail';
-import Pricing from './pages/Pricing'; // ADD
+import InvoiceDetail from './pages/invoiceDetail';
+import Pricing from './pages/pricing';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
