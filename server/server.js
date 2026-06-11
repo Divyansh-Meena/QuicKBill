@@ -6,7 +6,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const app = express();
 app.use(cors({
   origin: '*',
   credentials: true
