@@ -8,7 +8,7 @@ import Clients from './pages/clients';
 import Invoices from './pages/invoices';
 import CreateInvoice from './pages/CreateInvoice';
 import InvoiceDetail from './pages/invoiceDetail';
-import Pricing from './pages/pricing';
+import Pricing from './pages/Pricing';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
