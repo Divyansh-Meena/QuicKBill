@@ -40,8 +40,9 @@ A full-stack SaaS application for creating, managing, and sending professional i
 <img width="961" height="890" alt="image" src="https://github.com/user-attachments/assets/ecd0d867-0331-44b9-a533-36f0006f8c1a" />
 <img width="947" height="897" alt="image" src="https://github.com/user-attachments/assets/39289418-7c22-440b-80dc-87a4509c901f" />
 <img width="947" height="887" alt="Screenshot 2026-06-12 035520" src="https://github.com/user-attachments/assets/6e639a6f-08c0-499b-bcf7-e9e35dba009e" />
-<img width="947" height="897" alt="image" src="https://github.com/user-attachments/assets/15d9e59e-2cdc-44be-9b19-fea34c9ae19f" />
+<img width="952" height="887" alt="image" src="https://github.com/user-attachments/assets/91b578a4-6ed4-4877-9acf-92b2c93da3e2" />
 <img width="947" height="972" alt="image" src="https://github.com/user-attachments/assets/a3925f5e-1d5e-4c12-b78c-4748b417e4b5" />
+
 
 
 
